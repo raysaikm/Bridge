@@ -69,6 +69,10 @@ public class Hand {
         return shape.lp();
     }
 
+    public int totalPoints() {
+        return hcp() + lp();
+    }
+
     public int sp(Suit trump) {
         return holdings.get(trump).size() >= 3? // must hold three trumps for shorts to count
                 Suit.cardSuits().stream()

@@ -11,9 +11,7 @@ import java.util.List;
 
 public class Rule {
 
-  record BiddingResult(Bid bid, Rule triggeredRule) {
-
-  }
+  record BiddingResult(Bid bid, Rule triggeredRule) {}
 
   private int priority;
   private final Evaluation evaluation;
@@ -21,12 +19,62 @@ public class Rule {
   private final BiddingResult suggestedBid;
   private final String description;
 
-  public Rule(int priority, String description, Evaluation evaluation, Bid bid, Situation... situation) {
+  private Rule(int priority, String description, Evaluation evaluation, Bid bid, List<Situation> situation) {
     this.priority = priority;
     this.description = description;
     this.evaluation = evaluation;
-    this.situation = Arrays.asList(situation);
+    this.situation = situation;
     this.suggestedBid = new BiddingResult(bid, this);
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private int priority;
+    private String description;
+    private Evaluation evaluation;
+    private Bid bid;
+    private List<Situation> situations;
+
+    private Builder() {
+      // Private constructor to enforce usage of Rule.builder()
+    }
+
+    public Builder priority(int priority) {
+      this.priority = priority;
+      return this;
+    }
+
+    public Builder description(String description) {
+      this.description = description;
+      return this;
+    }
+
+    public Builder evaluation(Evaluation evaluation) {
+      this.evaluation = evaluation;
+      return this;
+    }
+
+    public Builder suggestedBid(Bid bid) {
+      this.bid = bid;
+      return this;
+    }
+
+    public Builder situations(Situation... situations) {
+      this.situations = Arrays.asList(situations);
+      return this;
+    }
+
+    public Builder situations(List<Situation> situations) {
+      this.situations = situations;
+      return this;
+    }
+
+    public Rule build() {
+      return new Rule(priority, description, evaluation, bid, situations);
+    }
   }
 
   public boolean match(final Auction auction) {
@@ -43,5 +91,9 @@ public class Rule {
 
   public BiddingResult getSuggestedBid() {
     return suggestedBid;
+  }
+
+  public String getDescription() {
+    return description;
   }
 }

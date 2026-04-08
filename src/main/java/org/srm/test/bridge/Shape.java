@@ -1,5 +1,6 @@
 package org.srm.test.bridge;
 
+import java.util.Comparator;
 import org.srm.test.bridge.card.Card;
 import org.srm.test.bridge.card.Suit;
 
@@ -13,17 +14,28 @@ public class Shape {
 
     private List<Integer> shape;
     public void calculate(final Map<Suit, Collection<Card>> holdings) {
-        shape = holdings.values().stream().map(Collection::size).sorted().toList();
+        // Sort descending (e.g., 5, 4, 2, 2) so index 0 is always the longest suit
+        this.shape = holdings.values().stream()
+            .map(Collection::size)
+            .sorted(Comparator.reverseOrder())
+            .toList();
     }
-    public boolean isBalanced() {
-        return shape.size() == 4 && // No void
-                shape.stream().allMatch(i -> i>1) && // no singleton or void
-                shape.stream().filter(i -> i==2).count() <= 1; // At most one doubleton
 
+    public boolean isBalanced() {
+        // Standard: No void(0), No singleton(1), At most one doubleton(2)
+        // Common shapes: 4-3-3-3, 4-4-3-2, 5-3-3-2
+        return shape.size() == 4 &&
+            shape.get(3) > 1 &&
+            shape.stream().filter(i -> i == 2).count() <= 1;
     }
 
     public boolean isUnBalanced() {
-        return shape.size()  <4 || shape.stream().anyMatch(i -> i<=1); // contains singleton or void;
+        // Standard: Has a singleton or void, or is extremely skewed (like two doubletons)
+        return shape.size() < 4 || shape.stream().anyMatch(i -> i <= 1);
+    }
+
+    public int highestSuitLength() {
+        return shape.isEmpty() ? 0 : shape.getFirst();
     }
 
     public Type getType() {
@@ -35,7 +47,6 @@ public class Shape {
     public int lp() {
         return shape.stream().filter(i -> i>4).mapToInt(i -> i-4).sum();
     }
-    public int highestSuitLength() { return shape.get(0);}
 
     @Override
     public String toString() { return getType() + "("
